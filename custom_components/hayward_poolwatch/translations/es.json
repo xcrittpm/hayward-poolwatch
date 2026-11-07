@@ -1,0 +1,119 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Hayward Poolwatch",
+        "description": "Usa el mismo email y contraseña que en poolwatch.hayward.fr.",
+        "data": {
+          "email": "Email",
+          "password": "Contraseña"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Hayward Poolwatch",
+        "description": "La sesión de Poolwatch ha caducado. Vuelve a escribir tu contraseña.",
+        "data": {
+          "password": "Contraseña"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Email o contraseña incorrectos.",
+      "cannot_connect": "No se puede conectar con Poolwatch. Inténtalo más tarde.",
+      "no_pools": "Esta cuenta no tiene ninguna piscina asociada."
+    },
+    "abort": {
+      "already_configured": "Esta cuenta ya está configurada.",
+      "reauth_successful": "Contraseña actualizada."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "Temperatura del agua"
+      },
+      "ph": {
+        "name": "pH"
+      },
+      "ph_setpoint": {
+        "name": "Consigna de pH"
+      },
+      "redox": {
+        "name": "Redox (ORP)"
+      },
+      "redox_setpoint": {
+        "name": "Consigna de redox"
+      },
+      "chlorine": {
+        "name": "Cloro libre"
+      },
+      "chlorinator_production": {
+        "name": "Producción del clorador"
+      },
+      "filtration_mode": {
+        "name": "Modo de filtración",
+        "state": {
+          "manual": "Manual",
+          "auto": "Automático",
+          "heating": "Calefacción",
+          "smart": "Smart",
+          "intel": "Intel"
+        }
+      },
+      "rssi": {
+        "name": "Señal WiFi"
+      }
+    },
+    "binary_sensor": {
+      "connected": {
+        "name": "Conectado"
+      },
+      "filtration_running": {
+        "name": "Bomba en marcha"
+      },
+      "flow_alarm": {
+        "name": "Alarma de caudal"
+      },
+      "low_production": {
+        "name": "Producción del clorador baja"
+      },
+      "ph_alarm": {
+        "name": "Alarma bomba de pH"
+      },
+      "fl2_alarm": {
+        "name": "Alarma FL2 (cloro)"
+      },
+      "al4_alarm": {
+        "name": "Alarma del clorador (AL4)"
+      }
+    },
+    "switch": {
+      "filtration": {
+        "name": "Filtración"
+      },
+      "light": {
+        "name": "Luz de la piscina"
+      },
+      "relay": {
+        "name": "Relé {number}"
+      }
+    },
+    "select": {
+      "filtration_mode_select": {
+        "name": "Modo de filtración",
+        "state": {
+          "manual": "Manual",
+          "auto": "Automático",
+          "heating": "Calefacción",
+          "smart": "Smart",
+          "intel": "Intel"
+        }
+      }
+    },
+    "number": {
+      "chlorinator_level": {
+        "name": "Nivel de producción del clorador"
+      }
+    }
+  }
+}

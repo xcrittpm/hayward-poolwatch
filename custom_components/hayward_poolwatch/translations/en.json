@@ -1,0 +1,119 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Hayward Poolwatch",
+        "description": "Use the same email and password you use on poolwatch.hayward.fr.",
+        "data": {
+          "email": "Email",
+          "password": "Password"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Hayward Poolwatch",
+        "description": "Your Poolwatch session has expired. Enter your password again.",
+        "data": {
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Wrong email or password.",
+      "cannot_connect": "Could not connect to Poolwatch. Try again later.",
+      "no_pools": "This account has no pools linked."
+    },
+    "abort": {
+      "already_configured": "This account is already set up.",
+      "reauth_successful": "Password updated."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "Water temperature"
+      },
+      "ph": {
+        "name": "pH"
+      },
+      "ph_setpoint": {
+        "name": "pH setpoint"
+      },
+      "redox": {
+        "name": "Redox (ORP)"
+      },
+      "redox_setpoint": {
+        "name": "Redox setpoint"
+      },
+      "chlorine": {
+        "name": "Free chlorine"
+      },
+      "chlorinator_production": {
+        "name": "Chlorinator production"
+      },
+      "filtration_mode": {
+        "name": "Filtration mode",
+        "state": {
+          "manual": "Manual",
+          "auto": "Auto",
+          "heating": "Heating",
+          "smart": "Smart",
+          "intel": "Intel"
+        }
+      },
+      "rssi": {
+        "name": "WiFi signal"
+      }
+    },
+    "binary_sensor": {
+      "connected": {
+        "name": "Connected"
+      },
+      "filtration_running": {
+        "name": "Pump running"
+      },
+      "flow_alarm": {
+        "name": "Flow alarm"
+      },
+      "low_production": {
+        "name": "Low chlorinator production"
+      },
+      "ph_alarm": {
+        "name": "pH pump alarm"
+      },
+      "fl2_alarm": {
+        "name": "FL2 alarm (chlorine)"
+      },
+      "al4_alarm": {
+        "name": "Chlorinator alarm (AL4)"
+      }
+    },
+    "switch": {
+      "filtration": {
+        "name": "Filtration"
+      },
+      "light": {
+        "name": "Pool light"
+      },
+      "relay": {
+        "name": "Relay {number}"
+      }
+    },
+    "select": {
+      "filtration_mode_select": {
+        "name": "Filtration mode",
+        "state": {
+          "manual": "Manual",
+          "auto": "Auto",
+          "heating": "Heating",
+          "smart": "Smart",
+          "intel": "Intel"
+        }
+      }
+    },
+    "number": {
+      "chlorinator_level": {
+        "name": "Chlorinator production level"
+      }
+    }
+  }
+}

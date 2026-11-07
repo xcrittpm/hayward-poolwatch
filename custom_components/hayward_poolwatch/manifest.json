@@ -1,0 +1,12 @@
+{
+  "domain": "hayward_poolwatch",
+  "name": "Hayward Poolwatch",
+  "codeowners": ["@xcrittpm"],
+  "config_flow": true,
+  "documentation": "https://github.com/xcrittpm/hayward-poolwatch",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/xcrittpm/hayward-poolwatch/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
