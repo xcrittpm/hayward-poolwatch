@@ -62,6 +62,9 @@
       },
       "rssi": {
         "name": "Señal WiFi"
+      },
+      "clock_offset": {
+        "name": "Desfase del reloj del equipo"
       }
     },
     "binary_sensor": {
@@ -136,6 +139,31 @@
       },
       "relay_max_time": {
         "name": "Tiempo máximo relé {name}"
+      }
+    },
+    "time": {
+      "light_start": {
+        "name": "Inicio luz"
+      },
+      "light_end": {
+        "name": "Fin luz"
+      },
+      "filtration_start": {
+        "name": "Inicio filtración {window}"
+      },
+      "filtration_end": {
+        "name": "Fin filtración {window}"
+      },
+      "relay_start": {
+        "name": "Inicio relé {name} franja {window}"
+      },
+      "relay_end": {
+        "name": "Fin relé {name} franja {window}"
+      }
+    },
+    "button": {
+      "sync_clock": {
+        "name": "Sincronizar hora del equipo"
       }
     }
   },

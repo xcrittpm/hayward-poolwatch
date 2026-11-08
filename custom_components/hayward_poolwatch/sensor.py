@@ -20,6 +20,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from . import PoolwatchConfigEntry
 from .const import FILTRATION_MODES
@@ -37,6 +38,17 @@ def _scaled(path: str, divisor: float, digits: int = 2) -> Callable[[dict], Any]
             return None
 
     return _read
+
+
+def _clock_offset_minutes(pool: dict) -> int | None:
+    """How many minutes the controller clock is ahead (+) or behind (-) of real local time."""
+    try:
+        device_minus_utc = int(get_path(pool, "main.localTime")) - int(pool["updatedAt"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    offset = dt_util.now().utcoffset()
+    local_minus_utc = offset.total_seconds() if offset else 0
+    return round((device_minus_utc - local_minus_utc) / 60)
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -115,6 +127,14 @@ SENSORS: tuple[PoolSensorDescription, ...] = (
         options=list(FILTRATION_MODES.values()),
         value_fn=lambda p: FILTRATION_MODES.get(get_path(p, "filtration.mode")),
         exists_fn=lambda p: not get_path(p, "main.hideFiltration"),
+    ),
+    PoolSensorDescription(
+        key="clock_offset",
+        translation_key="clock_offset",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        native_unit_of_measurement="min",
+        value_fn=lambda p: _clock_offset_minutes(p),
+        exists_fn=lambda p: get_path(p, "main.localTime") is not None and p.get("updatedAt") is not None,
     ),
     PoolSensorDescription(
         key="rssi",

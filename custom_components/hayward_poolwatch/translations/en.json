@@ -62,6 +62,9 @@
       },
       "rssi": {
         "name": "WiFi signal"
+      },
+      "clock_offset": {
+        "name": "Controller clock offset"
       }
     },
     "binary_sensor": {
@@ -136,6 +139,31 @@
       },
       "relay_max_time": {
         "name": "Relay {name} maximum time"
+      }
+    },
+    "time": {
+      "light_start": {
+        "name": "Light start"
+      },
+      "light_end": {
+        "name": "Light end"
+      },
+      "filtration_start": {
+        "name": "Filtration {window} start"
+      },
+      "filtration_end": {
+        "name": "Filtration {window} end"
+      },
+      "relay_start": {
+        "name": "Relay {name} window {window} start"
+      },
+      "relay_end": {
+        "name": "Relay {name} window {window} end"
+      }
+    },
+    "button": {
+      "sync_clock": {
+        "name": "Sync controller clock"
       }
     }
   },

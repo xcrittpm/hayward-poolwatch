@@ -68,8 +68,9 @@ class PoolwatchCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
 
         # Show the new state straight away, then read the real one back.
         updated = copy.deepcopy(self.data)
-        if section == "relays":
-            updated[pool_id].setdefault("relays", {}).update(new_value)
+        if section in ("relays", "main"):
+            # Partial sections: only the given keys change.
+            updated[pool_id].setdefault(section, {}).update(new_value)
         else:
             updated[pool_id][section] = new_value
         self.async_set_updated_data(updated)

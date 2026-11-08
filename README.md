@@ -13,6 +13,8 @@ Usa la misma nube que la web, así que necesitas el módulo WiFi y una cuenta de
 | Interruptores | Luz de la piscina, filtración, relés 1 a 4 (fuentes, cascadas, etc.) |
 | Selectores | Modo de la luz, modo de filtración y modo de cada relé |
 | Números | Tiempo máximo de la luz, de la filtración y de cada relé · nivel de producción del clorador |
+| Horas | Inicio y fin del horario de la luz, de los 3 intervalos de filtración y de las 2 franjas de cada relé |
+| Botón | Sincronizar hora del equipo |
 
 Solo se crean las entidades que tu equipo tiene (por ejemplo, el pH solo si hay módulo de pH).
 Los relés usan el nombre que les hayas puesto en la web.
@@ -41,6 +43,25 @@ Si al volver al horario no hay internet o Poolwatch está caído, se reintenta a
 5, 15, 30, 60 y 90 minutos. Si fallan todos, aparece un aviso en Home Assistant; mientras tanto
 queda en manual y **apagado** (nunca se queda encendido). Se arregla eligiendo otra vez su modo,
 o solo al reiniciar Home Assistant. Lo pendiente se guarda y sobrevive a los reinicios.
+
+## Cambiar el horario desde Home Assistant
+
+En la página del dispositivo, sección **Configuración**, están las horas de inicio y fin de cada
+horario. Es lo mismo que ves en la app y la web de Poolwatch: si lo cambias en un sitio, aparece
+en el otro (Home Assistant lo lee cada 30 segundos).
+
+- Un fin a las **00:00** significa hasta medianoche. Una franja de 00:00 a 00:00 es una franja sin usar.
+- Si el equipo está en **Manual**, ignora los cambios de horario: la integración los guarda y los
+  envía al elegir un modo con horario (la entidad lo indica con el atributo `pending`).
+- Si cambias el horario durante un encendido o apagado temporal, se aplica al terminar.
+
+### La hora del equipo
+
+Las horas son las del **reloj del controlador**, que puede ir adelantado o atrasado. El sensor
+**Desfase del reloj del equipo** dice cuántos minutos va desviado, y el botón
+**Sincronizar hora del equipo** lo pone en hora (el mismo comando que usa la web de Poolwatch).
+Ojo: al sincronizarlo, tus horarios pasan a cumplirse a la hora real, así que si los habías
+ajustado al reloj desviado, revísalos.
 
 ## Instalación
 

@@ -20,6 +20,8 @@ PLATFORMS: list[Platform] = [
     Platform.SWITCH,
     Platform.SELECT,
     Platform.NUMBER,
+    Platform.TIME,
+    Platform.BUTTON,
 ]
 
 PoolwatchConfigEntry = ConfigEntry[PoolwatchCoordinator]

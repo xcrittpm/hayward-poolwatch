@@ -316,6 +316,49 @@ class OutputController:
     def is_on(self) -> bool | None:
         return self.spec.is_on(self._obj())
 
+    @property
+    def schedule(self) -> list[list[Any]]:
+        """The normal schedule: the saved one during an override or while it
+        waits to be applied, otherwise what the controller has."""
+        if self._state["original"]:
+            return self._state["original"]["windows"]
+        return self.spec.windows(self._obj())
+
+    @property
+    def schedule_waiting(self) -> bool:
+        """True when the schedule shown is not (yet) the one in the controller."""
+        return bool(self._state["original"]) and (
+            self._state["original"]["windows"] != self.spec.windows(self._obj())
+        )
+
+    async def async_set_schedule_time(self, index: int, edge: str, seconds: int) -> None:
+        """Change the start ("from") or end ("to") of one schedule window."""
+        obj = self._obj()
+        windows = copy.deepcopy(self.schedule)
+        windows[index][0 if edge == "from" else 1] = int(seconds)
+
+        if self.pending:
+            # An override is running: the new times are applied when it ends.
+            self._state["original"]["windows"] = windows
+            self._changed()
+            return
+
+        mode = self.spec.device_mode(obj)
+        if mode in (0, None):
+            # The controller ignores time changes in manual: keep them and
+            # write them when a schedule mode is chosen.
+            self._state["original"] = {"mode": mode, "windows": windows}
+            self._changed()
+            return
+
+        self.spec.set_windows(obj, windows)
+        if mode == AUTO_WINDOWS:
+            sod = self._device_sod(dt_util.now())
+            set_value(obj, self.spec.output_path, int(any(in_window(sod, w) for w in windows)))
+        await self._write(obj)
+        self._state["original"] = None
+        self._changed()
+
     def add_listener(self, listener: Callable[[], None]) -> Callable[[], None]:
         self._listeners.append(listener)
         return lambda: self._listeners.remove(listener)
