@@ -20,6 +20,9 @@ DEFAULT_SCAN_INTERVAL = 30  # seconds
 # Time the pool needs to apply a command before we read it back.
 COMMAND_REFRESH_DELAY = 15  # seconds (the pool takes ~10 s to confirm)
 
+CONF_RELAYS = "relays"  # option: list of enabled relays
+RELAY_KEYS = ("relay1", "relay2", "relay3", "relay4")
+
 FILTRATION_MODES = {
     0: "manual",
     1: "auto",

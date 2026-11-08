@@ -9,7 +9,10 @@ from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import PoolwatchApi, PoolwatchAuthError, PoolwatchError
+from .const import CONF_RELAYS, RELAY_KEYS
 from .coordinator import PoolwatchCoordinator
+from .entity import get_path
+from .outputs import FILTRATION, LIGHT, OutputController, OutputStore, relay_spec
 
 PLATFORMS: list[Platform] = [
     Platform.SENSOR,
@@ -20,6 +23,12 @@ PLATFORMS: list[Platform] = [
 ]
 
 PoolwatchConfigEntry = ConfigEntry[PoolwatchCoordinator]
+
+
+def relay_label(pool: dict, key: str) -> str:
+    """Custom name from Poolwatch, or the relay number."""
+    name = get_path(pool, f"relays.{key}.name")
+    return str(name).strip() if name and str(name).strip() else key.removeprefix("relay")
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: PoolwatchConfigEntry) -> bool:
@@ -37,8 +46,35 @@ async def async_setup_entry(hass: HomeAssistant, entry: PoolwatchConfigEntry) ->
     await coordinator.async_config_entry_first_refresh()
     entry.runtime_data = coordinator
 
+    store = OutputStore(hass, entry.entry_id)
+    await store.async_load()
+    enabled_relays = entry.options.get(CONF_RELAYS)  # None = all
+    for pool_id, pool in coordinator.data.items():
+        specs = []
+        if isinstance(pool.get("light"), dict) and not get_path(pool, "main.hideLighting"):
+            specs.append((LIGHT, "la luz"))
+        if isinstance(pool.get("filtration"), dict) and not get_path(pool, "main.hideFiltration"):
+            specs.append((FILTRATION, "la filtración"))
+        if not get_path(pool, "main.hideRelays"):
+            for number, key in enumerate(RELAY_KEYS, start=1):
+                if not isinstance(get_path(pool, f"relays.{key}.info"), dict):
+                    continue
+                if enabled_relays is not None and key not in enabled_relays:
+                    continue
+                specs.append((relay_spec(number), f"el relé {relay_label(pool, key)}"))
+        for spec, label in specs:
+            controller = OutputController(hass, coordinator, store, pool_id, spec, label)
+            coordinator.controllers[(pool_id, spec.key)] = controller
+            controller.async_start()
+            entry.async_on_unload(controller.async_stop)
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    entry.async_on_unload(entry.add_update_listener(_async_reload))
     return True
+
+
+async def _async_reload(hass: HomeAssistant, entry: PoolwatchConfigEntry) -> None:
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: PoolwatchConfigEntry) -> bool:

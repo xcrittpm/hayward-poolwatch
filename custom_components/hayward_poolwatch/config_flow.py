@@ -8,20 +8,54 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.const import CONF_EMAIL, CONF_PASSWORD
+from homeassistant.core import callback
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import PoolwatchApi, PoolwatchAuthError
-from .const import DOMAIN
+from .const import CONF_RELAYS, DOMAIN, RELAY_KEYS
+from .entity import get_path
 
 _LOGGER = logging.getLogger(__name__)
 
 SCHEMA = vol.Schema({vol.Required(CONF_EMAIL): str, vol.Required(CONF_PASSWORD): str})
 
 
+class PoolwatchOptionsFlow(OptionsFlow):
+    """Choose which relays are used."""
+
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        if user_input is not None:
+            return self.async_create_entry(data=user_input)
+
+        coordinator = self.config_entry.runtime_data
+        choices: dict[str, str] = {}
+        for pool in (coordinator.data or {}).values():
+            for number, key in enumerate(RELAY_KEYS, start=1):
+                info = get_path(pool, f"relays.{key}.info")
+                if isinstance(info, dict):
+                    name = str(get_path(pool, f"relays.{key}.name") or "").strip()
+                    choices[key] = f"Relé {number}" + (f" ({name})" if name else "")
+        current = self.config_entry.options.get(CONF_RELAYS, list(choices))
+        schema = vol.Schema(
+            {
+                vol.Optional(CONF_RELAYS, default=[k for k in current if k in choices]): cv.multi_select(
+                    choices
+                )
+            }
+        )
+        return self.async_show_form(step_id="init", data_schema=schema)
+
+
 class PoolwatchConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> PoolwatchOptionsFlow:
+        return PoolwatchOptionsFlow()
 
     async def _validate(self, email: str, password: str) -> tuple[str | None, str | None]:
         """Return (uid, error_key)."""

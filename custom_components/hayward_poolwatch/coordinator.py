@@ -30,6 +30,8 @@ class PoolwatchCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         )
         self.api = api
         self.pool_ids: list[str] = []
+        # {(pool_id, output_key): OutputController}, filled in __init__.py
+        self.controllers: dict[tuple[str, str], Any] = {}
 
     async def _async_update_data(self) -> dict[str, dict[str, Any]]:
         try:

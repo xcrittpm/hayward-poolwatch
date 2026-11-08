@@ -95,7 +95,7 @@
         "name": "Luz de la piscina"
       },
       "relay": {
-        "name": "Relé {number}"
+        "name": "Relé {name}"
       }
     },
     "select": {
@@ -108,11 +108,45 @@
           "smart": "Smart",
           "intel": "Intel"
         }
+      },
+      "light_mode": {
+        "name": "Modo de la luz",
+        "state": {
+          "manual": "Manual",
+          "period": "Periodo (horario de Poolwatch)"
+        }
+      },
+      "relay_mode": {
+        "name": "Modo relé {name}",
+        "state": {
+          "manual": "Manual",
+          "period": "Periodo (horario de Poolwatch)"
+        }
       }
     },
     "number": {
       "chlorinator_level": {
         "name": "Nivel de producción del clorador"
+      },
+      "max_light_time": {
+        "name": "Tiempo máximo de luz"
+      },
+      "max_filtration_time": {
+        "name": "Tiempo máximo de filtración"
+      },
+      "relay_max_time": {
+        "name": "Tiempo máximo relé {name}"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Relés",
+        "description": "Elige los relés que usas. Los demás no aparecerán en Home Assistant.",
+        "data": {
+          "relays": "Relés en uso"
+        }
       }
     }
   }

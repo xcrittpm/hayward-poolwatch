@@ -95,7 +95,7 @@
         "name": "Pool light"
       },
       "relay": {
-        "name": "Relay {number}"
+        "name": "Relay {name}"
       }
     },
     "select": {
@@ -108,11 +108,45 @@
           "smart": "Smart",
           "intel": "Intel"
         }
+      },
+      "light_mode": {
+        "name": "Light mode",
+        "state": {
+          "manual": "Manual",
+          "period": "Schedule (Poolwatch)"
+        }
+      },
+      "relay_mode": {
+        "name": "Relay {name} mode",
+        "state": {
+          "manual": "Manual",
+          "period": "Schedule (Poolwatch)"
+        }
       }
     },
     "number": {
       "chlorinator_level": {
         "name": "Chlorinator production level"
+      },
+      "max_light_time": {
+        "name": "Maximum light time"
+      },
+      "max_filtration_time": {
+        "name": "Maximum filtration time"
+      },
+      "relay_max_time": {
+        "name": "Relay {name} maximum time"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Relays",
+        "description": "Choose the relays you use. The rest will not appear in Home Assistant.",
+        "data": {
+          "relays": "Relays in use"
+        }
       }
     }
   }
