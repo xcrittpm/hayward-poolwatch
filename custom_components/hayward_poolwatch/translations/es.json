@@ -35,9 +35,6 @@
       "ph": {
         "name": "pH"
       },
-      "ph_setpoint": {
-        "name": "Consigna de pH"
-      },
       "redox": {
         "name": "Redox (ORP)"
       },
@@ -65,6 +62,15 @@
       },
       "clock_offset": {
         "name": "Desfase del reloj del equipo"
+      },
+      "cell_total_hours": {
+        "name": "Horas de la célula (total)"
+      },
+      "cell_partial_hours": {
+        "name": "Horas de la célula (parcial)"
+      },
+      "filtration_hours_today": {
+        "name": "Horas de filtración hoy"
       }
     },
     "binary_sensor": {
@@ -145,6 +151,12 @@
       },
       "clock_sync_hours": {
         "name": "Frecuencia sincronización automática de hora"
+      },
+      "ph_high_setpoint": {
+        "name": "pH máximo (consigna)"
+      },
+      "ph_low_setpoint": {
+        "name": "pH mínimo (consigna)"
       }
     },
     "time": {

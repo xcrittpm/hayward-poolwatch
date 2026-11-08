@@ -6,6 +6,7 @@ import copy
 
 from homeassistant.components.number import NumberEntity, NumberMode
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -34,7 +35,52 @@ async def async_setup_entry(
         ClockSyncHours(coordinator, pool_id, clock)
         for pool_id, clock in coordinator.clock_syncs.items()
     ]
+    for pool_id, pool in coordinator.data.items():
+        if get_path(pool, "main.hasPH") and get_path(pool, "modules.ph.status.high_value") is not None:
+            entities += [PhSetpoint(coordinator, pool_id, "high_value"), PhSetpoint(coordinator, pool_id, "low_value")]
     async_add_entities(entities)
+
+
+class PhSetpoint(PoolwatchEntity, NumberEntity):
+    """pH setpoints. Stored x100 (7.2 -> 720) and sent like the web does (modules_web)."""
+
+    _attr_native_min_value = 6.5
+    _attr_native_max_value = 8.5
+    _attr_native_step = 0.1
+    _attr_mode = NumberMode.BOX
+    _attr_entity_category = EntityCategory.CONFIG
+
+    def __init__(self, coordinator, pool_id: str, field: str) -> None:
+        key = "ph_high" if field == "high_value" else "ph_low"
+        super().__init__(coordinator, pool_id, f"{key}_setpoint")
+        self._field = field
+        self._attr_translation_key = f"{key}_setpoint"
+
+    @property
+    def native_value(self) -> float | None:
+        raw = get_path(self.pool, f"modules.ph.status.{self._field}")
+        try:
+            return round(float(raw) / 100, 2)
+        except (TypeError, ValueError):
+            return None
+
+    async def async_set_native_value(self, value: float) -> None:
+        await self.coordinator.async_refresh_pool(self.pool_id)
+        modules = copy.deepcopy(self.pool.get("modules") or {})
+        status = modules.setdefault("ph", {}).setdefault("status", {})
+        other_field = "low_value" if self._field == "high_value" else "high_value"
+        try:
+            other = float(status.get(other_field)) / 100
+        except (TypeError, ValueError):
+            other = None
+        if other is not None and (
+            (self._field == "high_value" and value < other)
+            or (self._field == "low_value" and value > other)
+        ):
+            raise HomeAssistantError("El pH máximo no puede ser menor que el pH mínimo")
+        status[self._field] = int(round(value * 100))
+        payload = {name: modules[name] for name in ("ph", "rx", "cd", "cl") if name in modules}
+        await self.coordinator.async_write(self.pool_id, "modules_web", payload)
 
 
 class ClockSyncHours(PoolwatchEntity, NumberEntity):

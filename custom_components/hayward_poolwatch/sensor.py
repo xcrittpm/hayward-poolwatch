@@ -16,6 +16,7 @@ from homeassistant.const import (
     SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
     UnitOfElectricPotential,
     UnitOfTemperature,
+    UnitOfTime,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
@@ -79,14 +80,6 @@ SENSORS: tuple[PoolSensorDescription, ...] = (
         exists_fn=lambda p: bool(get_path(p, "main.hasPH")),
     ),
     PoolSensorDescription(
-        key="ph_setpoint",
-        translation_key="ph_setpoint",
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=_scaled("modules.ph.status.high_value", 100),
-        exists_fn=lambda p: bool(get_path(p, "main.hasPH"))
-        and get_path(p, "modules.ph.status.high_value") is not None,
-    ),
-    PoolSensorDescription(
         key="redox",
         translation_key="redox",
         device_class=SensorDeviceClass.VOLTAGE,
@@ -129,6 +122,27 @@ SENSORS: tuple[PoolSensorDescription, ...] = (
         exists_fn=lambda p: not get_path(p, "main.hideFiltration"),
     ),
     PoolSensorDescription(
+        # Not shown by the Poolwatch web; seconds, judging by the values.
+        key="cell_total_hours",
+        translation_key="cell_total_hours",
+        device_class=SensorDeviceClass.DURATION,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        native_unit_of_measurement=UnitOfTime.HOURS,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=_scaled("hidro.cellTotalTime", 3600, 0),
+        exists_fn=lambda p: bool(get_path(p, "main.hasHidro")) and get_path(p, "hidro.cellTotalTime") is not None,
+    ),
+    PoolSensorDescription(
+        key="cell_partial_hours",
+        translation_key="cell_partial_hours",
+        device_class=SensorDeviceClass.DURATION,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        native_unit_of_measurement=UnitOfTime.HOURS,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=_scaled("hidro.cellPartialTime", 3600, 0),
+        exists_fn=lambda p: bool(get_path(p, "main.hasHidro")) and get_path(p, "hidro.cellPartialTime") is not None,
+    ),
+    PoolSensorDescription(
         key="clock_offset",
         translation_key="clock_offset",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -154,12 +168,35 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: PoolwatchConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     coordinator = entry.runtime_data
-    async_add_entities(
+    entities: list[SensorEntity] = [
         PoolSensor(coordinator, pool_id, desc)
         for pool_id, pool in coordinator.data.items()
         for desc in SENSORS
         if desc.exists_fn(pool)
-    )
+    ]
+    entities += [
+        FiltrationHoursToday(coordinator, pool_id, runtime)
+        for pool_id, runtime in coordinator.runtimes.items()
+    ]
+    async_add_entities(entities)
+
+
+class FiltrationHoursToday(PoolwatchEntity, SensorEntity):
+    """Hours the pump has run today (counted by the integration)."""
+
+    _attr_translation_key = "filtration_hours_today"
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_native_unit_of_measurement = UnitOfTime.HOURS
+    _attr_suggested_display_precision = 1
+
+    def __init__(self, coordinator, pool_id: str, runtime) -> None:
+        super().__init__(coordinator, pool_id, "filtration_hours_today")
+        self._runtime = runtime
+
+    @property
+    def native_value(self) -> float:
+        return self._runtime.hours_today
 
 
 class PoolSensor(PoolwatchEntity, SensorEntity):

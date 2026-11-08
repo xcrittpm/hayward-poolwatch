@@ -1,0 +1,126 @@
+blueprint:
+  name: Avisos de la piscina (Hayward Poolwatch)
+  description: >-
+    Envía un aviso al móvil cuando la piscina se desconecta, salta una alarma
+    (caudal, clorador, bomba de pH...) o el pH se sale del rango que elijas.
+    Necesita la app de Home Assistant en el móvil.
+  domain: automation
+  source_url: https://github.com/xcrittpm/hayward-poolwatch/blob/main/blueprints/automation/hayward_poolwatch/avisos_piscina.yaml
+  input:
+    notify_device:
+      name: Móvil
+      description: El móvil que recibe los avisos (app de Home Assistant).
+      selector:
+        device:
+          integration: mobile_app
+    connected_sensor:
+      name: Sensor «Conectado» de la piscina
+      selector:
+        entity:
+          filter:
+            - integration: hayward_poolwatch
+              domain: binary_sensor
+              device_class: connectivity
+    offline_minutes:
+      name: Minutos desconectada antes de avisar
+      default: 15
+      selector:
+        number:
+          min: 1
+          max: 240
+          unit_of_measurement: min
+    alarm_sensors:
+      name: Alarmas que quieres vigilar
+      description: Por ejemplo alarma de caudal, del clorador o de la bomba de pH. Puedes dejarlo vacío.
+      default: []
+      selector:
+        entity:
+          multiple: true
+          filter:
+            - integration: hayward_poolwatch
+              domain: binary_sensor
+              device_class: problem
+    ph_sensor:
+      name: Sensor de pH (opcional)
+      description: Déjalo vacío si no quieres avisos de pH.
+      default: ""
+      selector:
+        entity:
+          filter:
+            - integration: hayward_poolwatch
+              domain: sensor
+    ph_min:
+      name: pH mínimo
+      default: 6.8
+      selector:
+        number:
+          min: 6.0
+          max: 8.0
+          step: 0.1
+    ph_max:
+      name: pH máximo
+      default: 7.8
+      selector:
+        number:
+          min: 6.5
+          max: 9.0
+          step: 0.1
+    ph_minutes:
+      name: Minutos fuera de rango antes de avisar
+      default: 30
+      selector:
+        number:
+          min: 1
+          max: 240
+          unit_of_measurement: min
+
+mode: queued
+max_exceeded: silent
+
+trigger_variables:
+  alarm_list: !input alarm_sensors
+  ph_entity: !input ph_sensor
+  ph_min: !input ph_min
+  ph_max: !input ph_max
+
+triggers:
+  - trigger: state
+    entity_id: !input connected_sensor
+    to: "off"
+    for:
+      minutes: !input offline_minutes
+    id: offline
+  - trigger: template
+    value_template: "{{ alarm_list | select('is_state', 'on') | list | count > 0 }}"
+    id: alarm
+  - trigger: template
+    value_template: >-
+      {{ ph_entity not in ['', none] and has_value(ph_entity) and states(ph_entity) | float(7) < ph_min | float }}
+    for:
+      minutes: !input ph_minutes
+    id: ph_low
+  - trigger: template
+    value_template: >-
+      {{ ph_entity not in ['', none] and has_value(ph_entity) and states(ph_entity) | float(7) > ph_max | float }}
+    for:
+      minutes: !input ph_minutes
+    id: ph_high
+
+variables:
+  message: >-
+    {% if trigger.id == 'offline' %}
+      La piscina lleva un rato desconectada de Poolwatch.
+    {% elif trigger.id == 'alarm' %}
+      Alarma: {{ alarm_list | select('is_state', 'on') | map('state_attr', 'friendly_name') | join(', ') }}.
+    {% elif trigger.id == 'ph_low' %}
+      pH bajo: {{ states(ph_entity) }} (mínimo {{ ph_min }}).
+    {% else %}
+      pH alto: {{ states(ph_entity) }} (máximo {{ ph_max }}).
+    {% endif %}
+
+actions:
+  - domain: mobile_app
+    type: notify
+    device_id: !input notify_device
+    title: Piscina
+    message: "{{ message | trim }}"

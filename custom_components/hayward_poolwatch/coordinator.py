@@ -34,6 +34,8 @@ class PoolwatchCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         self.controllers: dict[tuple[str, str], Any] = {}
         # {pool_id: ClockSync}, filled in __init__.py
         self.clock_syncs: dict[str, Any] = {}
+        # {pool_id: FiltrationRuntime}, filled in __init__.py
+        self.runtimes: dict[str, Any] = {}
 
     async def _async_update_data(self) -> dict[str, dict[str, Any]]:
         try:
@@ -87,6 +89,9 @@ class PoolwatchCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         if section in ("relays", "main"):
             # Partial sections: only the given keys change.
             updated[pool_id].setdefault(section, {}).update(new_value)
+        elif section == "modules_web":
+            # Sent as "modules_web", stored by the pool as "modules".
+            updated[pool_id].setdefault("modules", {}).update(new_value)
         else:
             updated[pool_id][section] = new_value
         self.async_set_updated_data(updated)

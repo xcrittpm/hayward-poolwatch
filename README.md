@@ -8,11 +8,11 @@ Usa la misma nube que la web, así que necesitas el módulo WiFi y una cuenta de
 
 | Tipo | Entidades |
 |------|-----------|
-| Sensores | Temperatura del agua, pH, redox (ORP), cloro libre, producción del clorador, modo de filtración del equipo, señal WiFi |
+| Sensores | Temperatura del agua, pH, redox (ORP), cloro libre, producción del clorador, modo de filtración del equipo, **horas de filtración hoy**, **horas de la célula del clorador** (total y parcial), desfase del reloj, señal WiFi |
 | Sensores sí/no | Conectado, bomba en marcha, alarma de caudal (FL1), alarma del clorador (AL4), producción baja, alarma bomba de pH, alarma FL2 (solo con módulo de cloro) |
 | Interruptores | Luz de la piscina, filtración, relés 1 a 4 (fuentes, cascadas, etc.) |
 | Selectores | Modo de la luz, modo de filtración y modo de cada relé |
-| Números | Tiempo máximo de la luz, de la filtración y de cada relé · nivel de producción del clorador |
+| Números | Tiempo máximo de la luz, de la filtración y de cada relé · nivel de producción del clorador · **pH máximo y mínimo (consigna)** |
 | Horas | Inicio y fin del horario de la luz, de los 3 intervalos de filtración y de las 2 franjas de cada relé |
 | Botón | Sincronizar hora del equipo |
 | Hora automática | Interruptor «Sincronización automática de hora» y su frecuencia en horas (6 por defecto) |
@@ -75,6 +75,29 @@ el estado actual, así que no deshace lo que acabes de cambiar en la app. Solo p
 cambias lo mismo en los dos sitios en los mismos ~10 segundos (lo que tarda el equipo en
 confirmar un cambio).
 
+## Avisos al móvil (opcional)
+
+La integración trae una plantilla de automatización para recibir un aviso en el móvil cuando:
+
+- la piscina se desconecta de Poolwatch durante X minutos,
+- salta una alarma (caudal, clorador, bomba de pH…),
+- el pH se sale del rango que elijas durante X minutos.
+
+No se activa sola: si la quieres, impórtala con este botón y crea una automatización a partir de ella.
+
+[![Importar plantilla](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fxcrittpm%2Fhayward-poolwatch%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fhayward_poolwatch%2Favisos_piscina.yaml)
+
+Necesita la app de Home Assistant en el móvil.
+
+## Notas sobre algunos datos
+
+- **Horas de filtración hoy:** Poolwatch no da este dato, así que lo cuenta la integración mientras
+  Home Assistant está encendido. Se pone a cero a medianoche.
+- **Horas de la célula:** la web de Poolwatch no las muestra; se interpretan como segundos
+  convertidos a horas. Tómalas como orientativas.
+- **pH máximo / mínimo:** son las consignas de la bomba de pH, las mismas que en la web
+  (Configuración → Consignas).
+
 ## Instalación
 
 ### Desde el Marketplace (Home Assistant 2026.11 o posterior)
@@ -104,7 +127,9 @@ de Home Assistant y reinicia.
 
 ## Depuración
 
-Añade esto a `configuration.yaml` para ver en el registro lo que se envía y recibe:
+Si algo falla, descarga el diagnóstico en **Ajustes → Dispositivos y servicios → Hayward Poolwatch → ⋮ → Descargar diagnósticos**. Lleva tus datos personales tapados (email, contraseña, identificadores, dirección, nombres de relés).
+
+Para ver en el registro lo que se envía y recibe, añade esto a `configuration.yaml`:
 
 ```yaml
 logger:
