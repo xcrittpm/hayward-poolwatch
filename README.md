@@ -15,6 +15,7 @@ Usa la misma nube que la web, así que necesitas el módulo WiFi y una cuenta de
 | Números | Tiempo máximo de la luz, de la filtración y de cada relé · nivel de producción del clorador |
 | Horas | Inicio y fin del horario de la luz, de los 3 intervalos de filtración y de las 2 franjas de cada relé |
 | Botón | Sincronizar hora del equipo |
+| Hora automática | Interruptor «Sincronización automática de hora» y su frecuencia en horas (6 por defecto) |
 
 Solo se crean las entidades que tu equipo tiene (por ejemplo, el pH solo si hay módulo de pH).
 Los relés usan el nombre que les hayas puesto en la web.
@@ -62,6 +63,17 @@ Las horas son las del **reloj del controlador**, que puede ir adelantado o atras
 **Sincronizar hora del equipo** lo pone en hora (el mismo comando que usa la web de Poolwatch).
 Ojo: al sincronizarlo, tus horarios pasan a cumplirse a la hora real, así que si los habías
 ajustado al reloj desviado, revísalos.
+
+Para no tener que acordarte, activa **Sincronización automática de hora**: lo pone en hora al
+activarlo y después cada **Frecuencia sincronización automática de hora** (6 horas por defecto).
+Si falla (sin internet), lo reintenta a los 15 minutos.
+
+### Si cambias algo a la vez en Home Assistant y en la app
+
+Manda el último cambio que llega al equipo. Antes de cada cambio, Home Assistant vuelve a leer
+el estado actual, así que no deshace lo que acabes de cambiar en la app. Solo puede chocar si
+cambias lo mismo en los dos sitios en los mismos ~10 segundos (lo que tarda el equipo en
+confirmar un cambio).
 
 ## Instalación
 

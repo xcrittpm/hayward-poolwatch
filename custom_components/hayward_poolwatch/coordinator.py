@@ -32,6 +32,8 @@ class PoolwatchCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         self.pool_ids: list[str] = []
         # {(pool_id, output_key): OutputController}, filled in __init__.py
         self.controllers: dict[tuple[str, str], Any] = {}
+        # {pool_id: ClockSync}, filled in __init__.py
+        self.clock_syncs: dict[str, Any] = {}
 
     async def _async_update_data(self) -> dict[str, dict[str, Any]]:
         try:
@@ -52,6 +54,20 @@ class PoolwatchCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
 
     def pool(self, pool_id: str) -> dict[str, Any]:
         return (self.data or {}).get(pool_id, {})
+
+    async def async_refresh_pool(self, pool_id: str) -> None:
+        """Read one pool right now, so a change is made on top of the latest data
+        (for example something just changed in the Poolwatch app). If it fails,
+        the last known data is used."""
+        try:
+            pool = await self.api.get_pool(pool_id)
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.debug("Fresh read of %s failed, using cached data: %s", pool_id, err)
+            return
+        if pool:
+            updated = dict(self.data or {})
+            updated[pool_id] = pool
+            self.async_set_updated_data(updated)
 
     async def async_write(self, pool_id: str, section: str, new_value: Any) -> None:
         """Replace one top-level section (light, filtration, relays...) and send it.

@@ -99,6 +99,9 @@
       },
       "relay": {
         "name": "Relay {name}"
+      },
+      "clock_auto_sync": {
+        "name": "Automatic clock sync"
       }
     },
     "select": {
@@ -139,26 +142,29 @@
       },
       "relay_max_time": {
         "name": "Relay {name} maximum time"
+      },
+      "clock_sync_hours": {
+        "name": "Automatic clock sync frequency"
       }
     },
     "time": {
       "light_start": {
-        "name": "Light start"
+        "name": "Light from"
       },
       "light_end": {
-        "name": "Light end"
+        "name": "Light to"
       },
       "filtration_start": {
-        "name": "Filtration {window} start"
+        "name": "Filtration {window} from"
       },
       "filtration_end": {
-        "name": "Filtration {window} end"
+        "name": "Filtration {window} to"
       },
       "relay_start": {
-        "name": "Relay {name} window {window} start"
+        "name": "Relay {name} window {window} from"
       },
       "relay_end": {
-        "name": "Relay {name} window {window} end"
+        "name": "Relay {name} window {window} to"
       }
     },
     "button": {

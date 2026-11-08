@@ -333,6 +333,7 @@ class OutputController:
 
     async def async_set_schedule_time(self, index: int, edge: str, seconds: int) -> None:
         """Change the start ("from") or end ("to") of one schedule window."""
+        await self.coordinator.async_refresh_pool(self.pool_id)
         obj = self._obj()
         windows = copy.deepcopy(self.schedule)
         windows[index][0 if edge == "from" else 1] = int(seconds)
@@ -406,6 +407,7 @@ class OutputController:
         manual the normal times are kept in memory and written back the next
         time a schedule mode is chosen.
         """
+        await self.coordinator.async_refresh_pool(self.pool_id)
         obj = self._obj()
         if mode == MODE_MANUAL:
             set_value(obj, self.spec.mode_path, 0)
@@ -428,6 +430,7 @@ class OutputController:
         self._changed()
 
     async def async_turn_on(self) -> None:
+        await self.coordinator.async_refresh_pool(self.pool_id)
         obj = self._obj()
         if self.user_mode == MODE_MANUAL:
             set_value(obj, self.spec.output_path, 1)
@@ -465,6 +468,7 @@ class OutputController:
         self._set_pending("on", windows, restore_at)
 
     async def async_turn_off(self) -> None:
+        await self.coordinator.async_refresh_pool(self.pool_id)
         obj = self._obj()
         if self.user_mode == MODE_MANUAL:
             set_value(obj, self.spec.output_path, 0)
@@ -548,6 +552,7 @@ class OutputController:
         pending = self.pending
         if not pending or self.user_mode == MODE_MANUAL:
             return
+        await self.coordinator.async_refresh_pool(self.pool_id)
         obj = self._obj()
         original = self._state["original"]
         current = self.spec.windows(obj)

@@ -99,6 +99,9 @@
       },
       "relay": {
         "name": "Relé {name}"
+      },
+      "clock_auto_sync": {
+        "name": "Sincronización automática de hora"
       }
     },
     "select": {
@@ -139,26 +142,29 @@
       },
       "relay_max_time": {
         "name": "Tiempo máximo relé {name}"
+      },
+      "clock_sync_hours": {
+        "name": "Frecuencia sincronización automática de hora"
       }
     },
     "time": {
       "light_start": {
-        "name": "Inicio luz"
+        "name": "Luz desde"
       },
       "light_end": {
-        "name": "Fin luz"
+        "name": "Luz hasta"
       },
       "filtration_start": {
-        "name": "Inicio filtración {window}"
+        "name": "Filtración {window} desde"
       },
       "filtration_end": {
-        "name": "Fin filtración {window}"
+        "name": "Filtración {window} hasta"
       },
       "relay_start": {
-        "name": "Inicio relé {name} franja {window}"
+        "name": "Relé {name} franja {window} desde"
       },
       "relay_end": {
-        "name": "Fin relé {name} franja {window}"
+        "name": "Relé {name} franja {window} hasta"
       }
     },
     "button": {

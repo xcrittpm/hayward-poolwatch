@@ -9,6 +9,7 @@ from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import PoolwatchApi, PoolwatchAuthError, PoolwatchError
+from .clock import ClockSync
 from .const import CONF_RELAYS, RELAY_KEYS
 from .coordinator import PoolwatchCoordinator
 from .entity import get_path
@@ -64,6 +65,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: PoolwatchConfigEntry) ->
                 if enabled_relays is not None and key not in enabled_relays:
                     continue
                 specs.append((relay_spec(number), f"el relé {relay_label(pool, key)}"))
+        clock = ClockSync(hass, coordinator, store, pool_id)
+        coordinator.clock_syncs[pool_id] = clock
+        clock.async_start()
+        entry.async_on_unload(clock.async_stop)
         for spec, label in specs:
             controller = OutputController(hass, coordinator, store, pool_id, spec, label)
             coordinator.controllers[(pool_id, spec.key)] = controller
